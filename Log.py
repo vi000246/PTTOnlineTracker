@@ -1,4 +1,4 @@
-DebugMode = False
+DebugMode = True
 
 def DebugPrint(msg):
     if DebugMode is True:

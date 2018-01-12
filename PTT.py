@@ -1,5 +1,4 @@
 # 放置和PTT相關的程式碼
-import config
 import sys
 import telnetlib
 import time
@@ -8,13 +7,15 @@ from datetime import datetime
 import FileHandle
 import FindIP
 import Log
+from config import config
 
 
 class Ptt(object):
     def __init__(self, host):
+        self.settings = config()
         self._host = host
-        self._user = config.loginInfo['Account'].encode('big5')
-        self._password = config.loginInfo['Password'].encode('big5')
+        self._user = self.settings.account
+        self._password = self.settings.password
         self._telnet = telnetlib.Telnet(host)
         self._content = ''
     # 更新content
@@ -117,14 +118,14 @@ class Ptt(object):
         self.updateContent()
 
     # 取得使用者資訊 註:要在休閒聊天頁面
-    def GetUserInfo(self,target):
+    def GetUserInfo(self,account):
         Log.DebugPrint("查詢網友中...")
         self._telnet.write(b"Q\r\n")
-        time.sleep(0.2)
+        time.sleep(1)
         self.updateContent()
         Log.DebugPrint("輸入網友ID中...")
-        self._telnet.write((target.id + "\r\n").encode("big5"))
-        time.sleep(0.2)
+        self._telnet.write((account + "\r\n").encode("big5"))
+        time.sleep(1)
         self.updateContent(True)
 
         if(u"線上使用者列表" in self._content):
@@ -133,13 +134,18 @@ class Ptt(object):
 
         # 取得上站時間跟IP
         match = re.search('《上次上站》(?P<loginTime>\d+\/\d+\/\d+\s\d+:\d+:\d+).*《上次故鄉》(?P<ip>[\w\.]+)', self._content)
-        datetime_object = datetime.strptime(match.group('loginTime'), '%m/%d/%Y %H:%M:%S')
+        if match:
+            datetime_object = datetime.strptime(match.group('loginTime'), '%m/%d/%Y %H:%M:%S')
+            ip = match.group('ip')
+        else:
+            datetime_object = '無法取得上站時間'
+            ip = '無法取得ip'
         # 返回休閒聊天區
         self._telnet.write(b"\r\n")
-        time.sleep(0.2)
+        time.sleep(1)
         self.updateContent()
 
-        return datetime_object , match.group('ip')
+        return datetime_object , ip
 
     # 丟水球 註:要在休閒聊天頁面
     def sendWater(self,UserId,LoginTime,IP):
@@ -153,7 +159,7 @@ class Ptt(object):
             time.sleep(0.2)
             self.updateContent()
             Log.DebugPrint("準備水球中...")
-        self._telnet.write(("s"+config.WaterTarget+"\r\n").encode("big5"))
+        self._telnet.write(("s"+self.settings.WaterTarget+"\r\n").encode("big5"))
         time.sleep(0.2)
         self.updateContent()
         if not self._content:
@@ -196,30 +202,35 @@ def main():
                 ptt.GotoTalkPage()
 
                 # loop搜尋使用者
-                for target in config.targets:
+                for account,IsSendWater in ptt.settings.GetTargets():
                     # 取得使用者上站資訊
-                    loginTime,ip = ptt.GetUserInfo(target)
+                    loginTime,ip = ptt.GetUserInfo(account)
                     # 取得ip資訊
-                    contry,isp,city = FindIP.getIpInfo(ip)
+                    if ip is not '無法取得ip':
+                        contry,isp,city = FindIP.getIpInfo(ip)
+                    else:
+                        contry, isp, city ='','',''
 
                     # 從csv取得上一次上線紀錄
-                    lastLoginTime ,_ = FileHandle.GetLastRecord(target.id)
+                    lastLoginTime ,_ = FileHandle.GetLastRecord(account)
 
                     # 如果使用者不存在 回傳空的loginTime lastLoginTime也會為空 IsChangeLoginTime=False
-                    if str(loginTime) == lastLoginTime:
+                    if str(loginTime) == lastLoginTime or str(loginTime) == '無法取得上站時間':
                         IsChangeLoginTime = False
                     else:
                         IsChangeLoginTime = True
 
 
                     # 如果變更上線時間且開啟丟水球功能 丟水球通知
-                    if target.isSendWater and IsChangeLoginTime:
-                        ptt.sendWater(target.id , loginTime , ip)
+                    if IsSendWater and IsChangeLoginTime:
+                        ptt.sendWater(account , loginTime , ip)
 
                     # 存檔
                     if IsChangeLoginTime:
                         Log.DebugPrint('使用者已變更上線紀錄')
-                        FileHandle.SaveToCSV(target.id,loginTime,ip,isp,city,contry)
+                        FileHandle.SaveToCSV(account,loginTime,ip,isp,city,contry)
+
+                    time.sleep(1)
 
 
 
@@ -232,3 +243,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # print(config.account.encode('big5'))
