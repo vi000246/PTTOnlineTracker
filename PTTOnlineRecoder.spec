@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['PTT.py'],
-             pathex=['D:\\Project\\PttUserOnlineRecord\\PttUserOnlineRecord'],
+             pathex=['E:\\MyProjects\\PTTOnlineTracker'],
              binaries=[],
              datas=[],
              hiddenimports=[],
