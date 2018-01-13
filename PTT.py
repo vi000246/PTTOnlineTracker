@@ -21,10 +21,10 @@ class Ptt(object):
     # 更新content
     # PrintContent:boolean 是否要印出content
     # 註:read_very_eager()只有在輸入完指令才能呼叫 若重覆呼叫會取得空的content
-    def updateContent(self,PrintContent=False):
+    def updateContent(self,PrintContent = False ,title = ''):
         self._content = self._telnet.read_very_eager().decode('big5', 'ignore')
         if PrintContent:
-            Log.DebugPrint('------\n' + self._content + '\n-----\n')
+            Log.DebugPrint('-----' + title + '------\n' + self._content + '\n-----------\n')
 
     @property
     def LoginProcess(self):
@@ -122,11 +122,11 @@ class Ptt(object):
         Log.DebugPrint("查詢網友中...")
         self._telnet.write(b"Q\r\n")
         time.sleep(1)
-        self.updateContent()
+        self.updateContent(False,'查詢網友')
         Log.DebugPrint("輸入網友ID中...")
         self._telnet.write((account + "\r\n").encode("big5"))
         time.sleep(1)
-        self.updateContent(True)
+        self.updateContent(False,'輸入網友ID')
 
         if(u"線上使用者列表" in self._content):
             Log.DebugPrint('使用者不存在')
@@ -143,7 +143,7 @@ class Ptt(object):
         # 返回休閒聊天區
         self._telnet.write(b"\r\n")
         time.sleep(1)
-        self.updateContent()
+        self.updateContent(False,'返回休閒聊天區')
 
         return datetime_object , ip
 
@@ -152,30 +152,30 @@ class Ptt(object):
         Log.DebugPrint("進入線上使用者列表...")
         self._telnet.write(b"U\r\n")
         time.sleep(0.2)
-        self.updateContent()
+        self.updateContent(False,'進入線上使用者列表')
         # 切換休閒聊天或好友列表模式 按f切換
         if u"休閒聊天" not in self._content:
             self._telnet.write(b"f")
             time.sleep(0.2)
-            self.updateContent()
-            Log.DebugPrint("準備水球中...")
+            self.updateContent(False,'切換模式')
+        Log.DebugPrint("準備水球中...")
         self._telnet.write(("s"+self.settings.WaterTarget+"\r\n").encode("big5"))
         time.sleep(0.2)
-        self.updateContent()
+        self.updateContent(False,'輸入水球目標ID')
         if not self._content:
             Log.DebugPrint('水球發送對象不存在或不在站上')
             return
         self._telnet.write(("w"+UserId+" 登入時間: "+str(LoginTime)+"\r\n").encode("big5"))
         time.sleep(0.2)
-        self.updateContent()
+        self.updateContent(False,'輸入水球訊息')
         self._telnet.write(b"y\r\n")
         time.sleep(0.2)
-        self.updateContent()
+        self.updateContent(False,'發送水球')
         Log.DebugPrint('水球發送完成')
         # 回到休閒聊天頁面
         self._telnet.write(b"e")
         time.sleep(0.2)
-        self.updateContent()
+        self.updateContent(False,'回到休閒聊天頁面')
 
 
 
@@ -222,15 +222,13 @@ def main():
 
 
                     # 如果變更上線時間且開啟丟水球功能 丟水球通知
-                    if IsSendWater and IsChangeLoginTime:
-                        ptt.sendWater(account , loginTime , ip)
+                    # if IsSendWater and IsChangeLoginTime:
+                    ptt.sendWater(account , loginTime , ip)
 
                     # 存檔
                     if IsChangeLoginTime:
                         Log.DebugPrint('使用者已變更上線紀錄')
                         FileHandle.SaveToCSV(account,loginTime,ip,isp,city,contry)
-
-                    time.sleep(1)
 
 
 

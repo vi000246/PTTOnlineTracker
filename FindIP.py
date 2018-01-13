@@ -9,7 +9,7 @@ def getIpInfo(ip):
     if match:
         return match.group('contry'),match.group('ISP'),match.group('city')
     else:
-        return '查無國家','查無ISP','查無城市'
+        return '','',''
 
 if __name__ == "__main__":
     a,b,c=getIpInfo('114.136.1asdfsf')
