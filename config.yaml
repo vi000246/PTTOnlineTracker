@@ -1,20 +1,8 @@
 # 註:yaml的空值是~或是null
 
-# 是否開啟錯誤紀錄檔功能
-EnableErrorLog: true
-
-# 是否開啟資訊紀錄功能
-EnableInfoLog: true
-
-# 是否印出訊息到console
-EnalblePrintConsole: true
-
 # 讓爬蟲登入用的帳號 建議用分身帳號
 Account: vscode
 Password: abcd1234
-
-# 指定程式儲放Log資料夾和登入紀錄資料夾的路徑
-SavePath: 123
 
 # 要紀錄PTT上線時間的目標帳號 支援多組帳號
 Targets:

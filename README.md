@@ -6,12 +6,11 @@ pip install pyinstaller
 
 pyinstaller打包教學
 
-step 1. 第一次build
-pyinstaller -F PTT.py  -n PTTOnlineRecoder --icon=app.ico --noupx -w
+第一次build的語法備份
+pyinstaller -F PTT.py  -n PTTOnlineRecoder --icon=app.ico -w --noupx 
 
-step 2. 設定spec檔 將yaml加到輸出清單
-
-step 3. 以後就只需要執行下面語法
+有修改程式直接執行以下語法
+pyinstaller PTTOnlineRecoder.spec
 
 
 
@@ -25,5 +24,6 @@ p.s. 使用-w模式不開啟console視窗
 記得在新增工作->新增動作的開始位置欄位 填入程式的所在路徑
 
 
-
-註:查詢多個帳號目前有bug 會抓不到使用者資訊 有時間再修正
+待修bug:
+1.查詢多個帳號目前有bug 會抓不到使用者資訊 有時間再修正
+2.每月第一天 會爬不到過去上站紀錄 造成誤判為使用者上線

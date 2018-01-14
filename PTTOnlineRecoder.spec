@@ -1,12 +1,13 @@
 # -*- mode: python -*-
 
 block_cipher = None
+import shutil
 
 
 a = Analysis(['PTT.py'],
              pathex=['E:\\MyProjects\\PTTOnlineTracker'],
              binaries=[],
-             datas=[],
+             datas=[('config.yaml', '.')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -27,3 +28,6 @@ exe = EXE(pyz,
           upx=False,
           runtime_tmpdir=None,
           console=False , icon='app.ico')
+
+
+shutil.copyfile('config.yaml', '{0}/config.yaml'.format(DISTPATH))

@@ -40,7 +40,7 @@ class Ptt(object):
                 return False
             elif errorCount>=1:
                 logging.info('錯誤重試次數:'+ str(errorCount))
-                time.sleep(0.2)
+                time.sleep(1)
 
             if u"密碼不對" in self._content:
                 logging.info("密碼不對或無此帳號。程式結束")
@@ -53,7 +53,7 @@ class Ptt(object):
             elif u"按任意鍵繼續" in self._content:
                 logging.info("資訊頁面，按任意鍵繼續...")
                 self._telnet.write(b"\r\n")
-                time.sleep(0.2)
+                time.sleep(1)
                 self.updateContent()
             elif u"您要刪除以上錯誤嘗試" in self._content:
                 logging.info("刪除以上錯誤嘗試...")
@@ -68,7 +68,7 @@ class Ptt(object):
                 self.updateContent()
             elif u"登入太頻繁" in self._content:
                 logging.info('登入太頻繁')
-                self._telnet.write(b"qqq\r\n")
+                self._telnet.write(b"\r\n")
                 time.sleep(7)
                 self.updateContent()
             elif not self._content:
@@ -125,12 +125,12 @@ class Ptt(object):
     def GetUserInfo(self,account):
         logging.info("查詢網友中...")
         self._telnet.write(b"Q\r\n")
-        time.sleep(1)
+        time.sleep(2)
         self.updateContent(False,'查詢網友')
         logging.info("輸入網友ID中...")
         self._telnet.write((account + "\r\n").encode("big5"))
-        time.sleep(1)
-        self.updateContent(True,'輸入網友ID')
+        time.sleep(2)
+        self.updateContent(False,'輸入網友ID')
 
         if(u"線上使用者列表" in self._content):
             logging.info('使用者不存在')
@@ -155,30 +155,30 @@ class Ptt(object):
     def sendWater(self,UserId,LoginTime,IP):
         logging.info("進入線上使用者列表...")
         self._telnet.write(b"U\r\n")
-        time.sleep(0.2)
+        time.sleep(1)
         self.updateContent(False,'進入線上使用者列表')
         # 切換休閒聊天或好友列表模式 按f切換
         if u"休閒聊天" not in self._content:
             self._telnet.write(b"f")
-            time.sleep(0.2)
+            time.sleep(1)
             self.updateContent(False,'切換模式')
         logging.info("準備水球中...")
         self._telnet.write(("s"+self.settings.WaterTarget+"\r\n").encode("big5"))
-        time.sleep(0.2)
+        time.sleep(2)
         self.updateContent(False,'輸入水球目標ID')
         if not self._content:
             logging.info('水球發送對象不存在或不在站上')
             return
         self._telnet.write(("w"+UserId+" 登入時間: "+str(LoginTime)+"\r\n").encode("big5"))
-        time.sleep(0.2)
+        time.sleep(2)
         self.updateContent(False,'輸入水球訊息')
         self._telnet.write(b"y\r\n")
-        time.sleep(0.2)
+        time.sleep(2)
         self.updateContent(False,'發送水球')
         logging.info('水球發送完成')
         # 回到休閒聊天頁面
         self._telnet.write(b"e")
-        time.sleep(0.2)
+        time.sleep(1)
         self.updateContent(False,'回到休閒聊天頁面')
 
 
@@ -246,5 +246,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except:
-        logging.error()
+    except Exception  as e:
+        logging.error(e)
