@@ -1,11 +1,19 @@
 # PttUserOnlineRecord
 用來紀錄PTT使用者的上線紀錄
 
+
 pip install pyinstaller
 
-使用pyinstaller打包  
-記得到Log.py把DebugMode設為False  
+pyinstaller打包教學
+
+step 1. 第一次build
 pyinstaller -F PTT.py  -n PTTOnlineRecoder --icon=app.ico --noupx -w
+
+step 2. 設定spec檔 將yaml加到輸出清單
+
+step 3. 以後就只需要執行下面語法
+
+
 
 p.s. 使用-w模式不開啟console視窗  
 必須不能使用'stdout' 例如print()

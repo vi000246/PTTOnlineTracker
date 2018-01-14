@@ -1,4 +1,6 @@
 import logging
+import sys
+import datetime
 
 class Logger:
 
@@ -13,11 +15,13 @@ class Logger:
             fileHandler = logging.FileHandler(self.logFilename, 'w', 'utf-8')
             fileHandler.setLevel(logging.DEBUG)
             # 在console印出
-            consoleHandler = logging.StreamHandler()
-            consoleHandler.setLevel(logging.DEBUG)
+            consoleHandler = logging.StreamHandler(sys.stdout)
+            consoleHandler.setLevel(logging.INFO)
 
-        logger.addHandler(fileHandler)
-        logger.addHandler(consoleHandler)
+            logger.addHandler(fileHandler)
+            logger.addHandler(consoleHandler)
+
+        logger.info('=======執行時間: '+str(datetime.datetime.now())+'=======')
 
 
         return logger
