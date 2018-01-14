@@ -6,12 +6,16 @@ import re
 from datetime import datetime
 import FileHandle
 import FindIP
-import Log
 from config import config
+import Log
 
+log = Log.Logger()
+log.cleanLog()
+logging = log.setup_custom_logger()
 
 class Ptt(object):
     def __init__(self, host):
+
         self.settings = config()
         self._host = host
         self._user = self.settings.account
@@ -24,7 +28,7 @@ class Ptt(object):
     def updateContent(self,PrintContent = False ,title = ''):
         self._content = self._telnet.read_very_eager().decode('big5', 'ignore')
         if PrintContent:
-            Log.DebugPrint('-----' + title + '------\n' + self._content + '\n-----------\n')
+            logging.info('-----' + title + '------\n' + self._content + '\n-----------\n')
 
     @property
     def LoginProcess(self):
@@ -35,40 +39,40 @@ class Ptt(object):
             if errorCount>=10:
                 return False
             elif errorCount>=1:
-                Log.DebugPrint('錯誤重試次數:'+ str(errorCount))
+                logging.info('錯誤重試次數:'+ str(errorCount))
                 time.sleep(0.2)
 
             if u"密碼不對" in self._content:
-                Log.DebugPrint("密碼不對或無此帳號。程式結束")
+                logging.info("密碼不對或無此帳號。程式結束")
                 sys.exit()
             elif u"您想刪除其他重複登入" in self._content:
-                Log.DebugPrint("刪除其他重複登入的連線....")
+                logging.info("刪除其他重複登入的連線....")
                 self._telnet.write(b"y\r\n")
                 time.sleep(7)
                 self.updateContent()
             elif u"按任意鍵繼續" in self._content:
-                Log.DebugPrint("資訊頁面，按任意鍵繼續...")
+                logging.info("資訊頁面，按任意鍵繼續...")
                 self._telnet.write(b"\r\n")
                 time.sleep(0.2)
                 self.updateContent()
             elif u"您要刪除以上錯誤嘗試" in self._content:
-                Log.DebugPrint("刪除以上錯誤嘗試...")
+                logging.info("刪除以上錯誤嘗試...")
                 self._telnet.write(b"y\r\n")
                 time.sleep(3)
                 self.updateContent()
             elif u"您有一篇文章尚未完成" in self._content:
-                Log.DebugPrint('刪除尚未完成的文章....')
+                logging.info('刪除尚未完成的文章....')
                 # 放棄尚未編輯完的文章
                 self._telnet.write(b"q\r\n")
                 time.sleep(3)
                 self.updateContent()
             elif u"登入太頻繁" in self._content:
-                Log.DebugPrint('登入太頻繁')
+                logging.info('登入太頻繁')
                 self._telnet.write(b"qqq\r\n")
                 time.sleep(7)
                 self.updateContent()
             elif not self._content:
-                Log.DebugPrint('Content為空')
+                logging.info('Content為空')
                 return False
             errorCount+=1
         return True
@@ -76,9 +80,9 @@ class Ptt(object):
     @property
     def input_user_password(self):
         if u"請輸入代號" in self._content:
-            Log.DebugPrint('輸入帳號中...')
+            logging.info('輸入帳號中...')
             self._telnet.write(self._user + b"\r\n")
-            Log.DebugPrint('輸入密碼中...')
+            logging.info('輸入密碼中...')
             self._telnet.write(self._password + b"\r\n")
             time.sleep(2)
             self.updateContent()
@@ -89,47 +93,47 @@ class Ptt(object):
     def is_connect(self):
         self.updateContent()
         if u"系統過載" in self._content:
-            Log.DebugPrint('系統過載, 請稍後再來')
+            logging.info('系統過載, 請稍後再來')
             sys.exit(0)
         return True
     # 登入流程
     def login(self):
         if self.input_user_password:
-            Log.DebugPrint("----------------------------------------------")
-            Log.DebugPrint("------------------ 登入完成 ------------------")
-            Log.DebugPrint("----------------------------------------------")
+            logging.info("----------------------------------------------")
+            logging.info("------------------ 登入完成 ------------------")
+            logging.info("----------------------------------------------")
             return True
-            Log.DebugPrint("沒有可輸入帳號的欄位，網站可能掛了")
+            logging.info("沒有可輸入帳號的欄位，網站可能掛了")
         return False
 
     def logout(self):
-        Log.DebugPrint("登出中...")
+        logging.info("登出中...")
         self._telnet.write(b"qqqqqqqqqg\r\ny\r\n")
         time.sleep(1)
         self._telnet.close()
-        Log.DebugPrint("----------------------------------------------")
-        Log.DebugPrint("------------------ 登出完成 ------------------")
-        Log.DebugPrint("----------------------------------------------")
+        logging.info("----------------------------------------------")
+        logging.info("------------------ 登出完成 ------------------")
+        logging.info("----------------------------------------------")
     # 進入休閒聊天區頁面
     def GotoTalkPage(self):
-        Log.DebugPrint("進入休閒聊天區中...")
+        logging.info("進入休閒聊天區中...")
         self._telnet.write(b"T\r\n")
         time.sleep(0.2)
         self.updateContent()
 
     # 取得使用者資訊 註:要在休閒聊天頁面
     def GetUserInfo(self,account):
-        Log.DebugPrint("查詢網友中...")
+        logging.info("查詢網友中...")
         self._telnet.write(b"Q\r\n")
         time.sleep(1)
         self.updateContent(False,'查詢網友')
-        Log.DebugPrint("輸入網友ID中...")
+        logging.info("輸入網友ID中...")
         self._telnet.write((account + "\r\n").encode("big5"))
         time.sleep(1)
-        self.updateContent(False,'輸入網友ID')
+        self.updateContent(True,'輸入網友ID')
 
         if(u"線上使用者列表" in self._content):
-            Log.DebugPrint('使用者不存在')
+            logging.info('使用者不存在')
             return '',''
 
         # 取得上站時間跟IP
@@ -149,7 +153,7 @@ class Ptt(object):
 
     # 丟水球 註:要在休閒聊天頁面
     def sendWater(self,UserId,LoginTime,IP):
-        Log.DebugPrint("進入線上使用者列表...")
+        logging.info("進入線上使用者列表...")
         self._telnet.write(b"U\r\n")
         time.sleep(0.2)
         self.updateContent(False,'進入線上使用者列表')
@@ -158,12 +162,12 @@ class Ptt(object):
             self._telnet.write(b"f")
             time.sleep(0.2)
             self.updateContent(False,'切換模式')
-        Log.DebugPrint("準備水球中...")
+        logging.info("準備水球中...")
         self._telnet.write(("s"+self.settings.WaterTarget+"\r\n").encode("big5"))
         time.sleep(0.2)
         self.updateContent(False,'輸入水球目標ID')
         if not self._content:
-            Log.DebugPrint('水球發送對象不存在或不在站上')
+            logging.info('水球發送對象不存在或不在站上')
             return
         self._telnet.write(("w"+UserId+" 登入時間: "+str(LoginTime)+"\r\n").encode("big5"))
         time.sleep(0.2)
@@ -171,7 +175,7 @@ class Ptt(object):
         self._telnet.write(b"y\r\n")
         time.sleep(0.2)
         self.updateContent(False,'發送水球')
-        Log.DebugPrint('水球發送完成')
+        logging.info('水球發送完成')
         # 回到休閒聊天頁面
         self._telnet.write(b"e")
         time.sleep(0.2)
@@ -190,7 +194,7 @@ def main():
 
         if retryCount >= retryConnectTimes:
             retryFlag = False
-            Log.DebugPrint('重試次數超過' + str(retryConnectTimes) + ' 程式中止')
+            logging.info('重試次數超過' + str(retryConnectTimes) + ' 程式中止')
             sys.exit(0)
 
         ptt = Ptt(host)
@@ -222,12 +226,12 @@ def main():
 
 
                     # 如果變更上線時間且開啟丟水球功能 丟水球通知
-                    # if IsSendWater and IsChangeLoginTime:
-                    ptt.sendWater(account , loginTime , ip)
+                    if IsSendWater and IsChangeLoginTime:
+                        ptt.sendWater(account , loginTime , ip)
 
                     # 存檔
                     if IsChangeLoginTime:
-                        Log.DebugPrint('使用者已變更上線紀錄')
+                        logging.info('使用者已變更上線紀錄')
                         FileHandle.SaveToCSV(account,loginTime,ip,isp,city,contry)
 
 
@@ -240,5 +244,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    # print(config.account.encode('big5'))
+    try:
+        main()
+    except:
+        logging.error()
