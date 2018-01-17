@@ -12,6 +12,7 @@ import Log
 log = Log.Logger()
 log.cleanLog()
 logging = log.setup_custom_logger()
+logging.info('=======執行時間: ' + str(datetime.datetime.now()) + '=======')
 
 class Ptt(object):
     def __init__(self, host):
@@ -190,7 +191,6 @@ def main():
     retryConnectTimes = 10
     retryCount = 0
     retryFlag = True
-
     while(retryFlag):
 
         if retryCount >= retryConnectTimes:

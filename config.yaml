@@ -15,3 +15,9 @@ Targets:
 
 # 發送水球的目標
 WaterTarget: vi000246
+
+# Service要定期執行的間隔 單位:秒
+SleepTime: 300
+
+# 程式所在目錄
+ProgramePath: D:\Project\PttUserOnlineRecord\PttUserOnlineRecord
