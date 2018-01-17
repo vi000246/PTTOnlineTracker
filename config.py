@@ -10,7 +10,7 @@ class config(object):
         self.Targets = self.settings["Targets"]
         self.WaterTarget = self.settings["WaterTarget"]
         self.SleepTime = self.settings["SleepTime"]
-        self.ProgramePath = self.settings["ProgramePath"]
+        # self.ProgramePath = self.settings["ProgramePath"]
 
     def GetTargets(self):
         for target in self.settings["Targets"]:
