@@ -152,7 +152,7 @@ class Ptt(object):
         return datetime_object , ip
 
     # 丟水球 註:要在休閒聊天頁面
-    def sendWater(self,UserId,LoginTime,IP):
+    def sendWater(self,UserId,LoginTime,isp):
         logging.info("進入線上使用者列表...")
         self._telnet.write(b"U\r\n")
         time.sleep(1)
@@ -166,10 +166,16 @@ class Ptt(object):
         self._telnet.write(("s"+self.settings.WaterTarget+"\r\n").encode("big5"))
         time.sleep(2)
         self.updateContent(False,'輸入水球目標ID')
-        if not self._content:
+        if self.settings.WaterTarget not in  self._content:
             logging.info('水球發送對象不存在或不在站上')
             return
-        self._telnet.write(("w"+UserId+" 登入時間: "+str(LoginTime)+"\r\n").encode("big5"))
+        #組出水球訊息 水球長度  27中文字  55英文字  55數字
+        if isinstance(LoginTime, datetime):
+            LoginTime = LoginTime.strftime("%m/%d %H:%M")
+
+        msg = UserId+" 上線: "+str(LoginTime)+" ISP: "+ isp
+        logging.info("訊息:" + msg)
+        self._telnet.write(("w"+ msg +"\r\n").encode("big5"))
         time.sleep(2)
         self.updateContent(False,'輸入水球訊息')
         self._telnet.write(b"y\r\n")
@@ -227,7 +233,7 @@ def main():
 
                     # 如果變更上線時間且開啟丟水球功能 丟水球通知
                     if IsSendWater and IsChangeLoginTime:
-                        ptt.sendWater(account , loginTime , ip)
+                        ptt.sendWater(account , loginTime , isp)
 
                     # 存檔
                     if IsChangeLoginTime:

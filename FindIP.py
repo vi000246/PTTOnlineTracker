@@ -7,7 +7,11 @@ def getIpInfo(ip):
     match = re.search('IP國別:[^>]*>[^>]*>(?P<contry>[^<]*).*ISP來源:[^>]*>(?P<ISP>[^<]*).*IP地理: 城市:[^>]*>(?P<city>[^<]*)',
                       r.text)
     if match:
-        return match.group('contry'),match.group('ISP'),match.group('city')
+        isp = match.group('ISP')
+        matchIsp = re.search('(?P<isp>[\u4e00-\u9fff]+)',isp)
+        if matchIsp:
+            isp = matchIsp.group('isp').replace("股份有限公司", "")
+        return match.group('contry'),isp,match.group('city')
     else:
         return '','',''
 
