@@ -9,6 +9,8 @@ class config(object):
         self.password = self.settings["Password"].encode('big5')
         self.Targets = self.settings["Targets"]
         self.WaterTarget = self.settings["WaterTarget"]
+        self.SleepTime = self.settings["SleepTime"]
+        # self.ProgramePath = self.settings["ProgramePath"]
 
     def GetTargets(self):
         for target in self.settings["Targets"]:

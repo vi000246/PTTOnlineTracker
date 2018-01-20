@@ -21,9 +21,6 @@ class Logger:
             logger.addHandler(fileHandler)
             logger.addHandler(consoleHandler)
 
-        logger.info('=======執行時間: '+str(datetime.datetime.now())+'=======')
-
-
         return logger
 
     def cleanLog(self):

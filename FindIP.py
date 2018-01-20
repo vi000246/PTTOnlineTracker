@@ -16,5 +16,5 @@ def getIpInfo(ip):
         return '','',''
 
 if __name__ == "__main__":
-    a,b,c=getIpInfo('114.136.1asdfsf')
+    a,b,c=getIpInfo('61.218.40.109')
     print(a,b,c)

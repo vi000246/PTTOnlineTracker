@@ -12,6 +12,7 @@ import Log
 log = Log.Logger()
 log.cleanLog()
 logging = log.setup_custom_logger()
+logging.info('=======執行時間: ' + str(datetime.datetime.now()) + '=======')
 
 class Ptt(object):
     def __init__(self, host):
@@ -168,6 +169,7 @@ class Ptt(object):
         self.updateContent(False,'輸入水球目標ID')
         if self.settings.WaterTarget not in  self._content:
             logging.info('水球發送對象不存在或不在站上')
+<<<<<<< HEAD
             return
         #組出水球訊息 水球長度  27中文字  55英文字  55數字
         if isinstance(LoginTime, datetime):
@@ -176,6 +178,10 @@ class Ptt(object):
         msg = UserId+" 上線: "+str(LoginTime)+" ISP: "+ isp
         logging.info("訊息:" + msg)
         self._telnet.write(("w"+ msg +"\r\n").encode("big5"))
+=======
+            return False
+        self._telnet.write(("w"+UserId+" 登入時間: "+str(LoginTime)+"\r\n").encode("big5"))
+>>>>>>> a4d20082791c33925f56d24726f785915e6741f4
         time.sleep(2)
         self.updateContent(False,'輸入水球訊息')
         self._telnet.write(b"y\r\n")
@@ -186,6 +192,7 @@ class Ptt(object):
         self._telnet.write(b"e")
         time.sleep(1)
         self.updateContent(False,'回到休閒聊天頁面')
+        return True
 
 
 
@@ -195,7 +202,6 @@ def main():
     retryConnectTimes = 10
     retryCount = 0
     retryFlag = True
-
     while(retryFlag):
 
         if retryCount >= retryConnectTimes:
@@ -215,6 +221,7 @@ def main():
                 for account,IsSendWater in ptt.settings.GetTargets():
                     # 取得使用者上站資訊
                     loginTime,ip = ptt.GetUserInfo(account)
+                    logging.info('已取得上線紀錄 上線時間:'+str(loginTime) +' ip:'+str(ip))
                     # 取得ip資訊
                     if ip is not '無法取得ip':
                         contry,isp,city = FindIP.getIpInfo(ip)
@@ -222,14 +229,16 @@ def main():
                         contry, isp, city ='','',''
 
                     # 從csv取得上一次上線紀錄
-                    lastLoginTime ,_ = FileHandle.GetLastRecord(account)
+                    lastLoginTime_csv ,_,sendWaterFlag_csv = FileHandle.GetLastRecord(account)
+
 
                     # 如果使用者不存在 回傳空的loginTime lastLoginTime也會為空 IsChangeLoginTime=False
-                    if str(loginTime) == lastLoginTime or str(loginTime) == '無法取得上站時間':
+                    if str(loginTime) == lastLoginTime_csv or str(loginTime) == '無法取得上站時間':
                         IsChangeLoginTime = False
                     else:
                         IsChangeLoginTime = True
 
+<<<<<<< HEAD
 
                     # 如果變更上線時間且開啟丟水球功能 丟水球通知
                     if IsSendWater and IsChangeLoginTime:
@@ -240,6 +249,25 @@ def main():
                         logging.info('使用者已變更上線紀錄')
                         FileHandle.SaveToCSV(account,loginTime,ip,isp,city,contry)
 
+=======
+                    isSend= 'disabled'
+                    # 如果開啟丟水球功能且(變更上線時間或還沒發送水球) 丟水球通知
+                    if IsSendWater and (IsChangeLoginTime or sendWaterFlag_csv != 'True'):
+                        isSend = ptt.sendWater(account , loginTime , ip)
+
+                    # 存檔或修改水球發送紀錄
+                    if IsChangeLoginTime or sendWaterFlag_csv == 'False':
+                        # 如果變更上線紀錄就新增一筆
+                        if IsChangeLoginTime:
+                            logging.info('使用者已變更上線紀錄')
+                        # update 水球發送紀錄 因為csv用update有點麻煩 改用刪除最後一列的方式
+                        else:
+                            logging.info('重新發送水球結果:'+str(isSend))
+                            # 刪除最後一列紀錄
+                            FileHandle.RemoveLastRecord(account)
+
+                        FileHandle.SaveToCSV(account, loginTime, ip, isp, city, contry, isSend)
+>>>>>>> a4d20082791c33925f56d24726f785915e6741f4
 
 
                 # 跳出While迴圈
