@@ -159,7 +159,7 @@ class Ptt(object):
         time.sleep(1)
         self.updateContent(False,'進入線上使用者列表')
         # 切換休閒聊天或好友列表模式 按f切換
-        if u"休閒聊天" not in self._content:
+        if u"好友列表" in self._content:
             self._telnet.write(b"f")
             time.sleep(1)
             self.updateContent(False,'切換模式')
@@ -169,7 +169,7 @@ class Ptt(object):
         self.updateContent(False,'輸入水球目標ID')
         if self.settings.WaterTarget not in  self._content:
             logging.info('水球發送對象不存在或不在站上')
-            return
+            return False
         #組出水球訊息 水球長度  27中文字  55英文字  55數字
         if isinstance(LoginTime, datetime):
             LoginTime = LoginTime.strftime("%m/%d %H:%M")
