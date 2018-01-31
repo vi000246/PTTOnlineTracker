@@ -2,7 +2,7 @@
 
 # 讓爬蟲登入用的帳號 建議用分身帳號
 Account: vscode
-Password: abcd1234
+Password: 1234
 
 # 要紀錄PTT上線時間的目標帳號 支援多組帳號
 Targets:
