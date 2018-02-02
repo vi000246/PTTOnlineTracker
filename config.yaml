@@ -6,7 +6,7 @@ Password: 1234
 
 # 要紀錄PTT上線時間的目標帳號 支援多組帳號
 Targets:
-- account: digforapples
+- account: theAccountYouWantToTrack
   IsSendWater: true
 #- account: vi000246
 #  IsSendWater: true
