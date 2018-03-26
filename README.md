@@ -1,7 +1,3 @@
-# PttUserOnlineRecord
-用來紀錄PTT使用者的上線紀錄
-
-
 pip install pyinstaller
 
 pyinstaller打包教學
